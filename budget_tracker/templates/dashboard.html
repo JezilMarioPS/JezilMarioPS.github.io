@@ -1,0 +1,370 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="display-4">Dashboard</h1>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="post" class="mb-4">
+            <div class="form-row align-items-end">
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control">
+                </div>
+                <div class="col-md-2 col-sm-6 mb-2">
+                <!-- Predefined Date Range Options -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Select Date Range
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('today')">Today</a>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_7_days')">Last 7 Days</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_30_days')">Last 30 Days</a>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_3_months')">Last 3 Months</a>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_6_months')">Last 6 Months</a>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_year')">Last Year</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6 mb-2">
+                    <button type="submit" class="btn btn-primary btn-block">Apply Date Range</button>
+                </div>
+            </div>
+        </form>
+
+    <!-- Display totals -->
+        <div class="totals-section mt-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Income</h5>
+                            <p class="card-text h3">{{ total_income }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-danger mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Expenses</h5>
+                            <p class="card-text h3">{{ total_expenses }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Money Left Over</h5>
+                            <p class="card-text h3">{{ net_income }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Display pie charts -->
+        <div class="row mt-4">
+        <!-- Expense Distribution by Category -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="card-title mb-0">Expense Distribution by Category</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="expensePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Income Distribution by Category -->
+            <div class="col-md-6">
+                <div class="card">
+
+
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">Income Distribution by Category</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="incomePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <!-- Income and Expense Transaction Summary tables side by side -->
+        <div class="row mt-4">
+
+        <!-- Expense Transaction Summary table -->
+            <div class="col-md-6">
+                <div class="table-responsive">
+                    <h2>Expense Transaction Summary</h2>
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Category</th>
+                                <th>Number of Transactions</th>
+                                <th>Total Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category, summary in expense_summary.items() %}
+                                <tr>
+                                    <td>{{ category }}</td>
+                                    <td>{{ summary.count }}</td>
+                                    <td>{{ summary.total_value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        <!-- Income Transaction Summary table -->
+            <div class="col-md-6">
+                <div class="table-responsive">
+                    <h2>Income Transaction Summary</h2>
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Category</th>
+                                <th>Number of Transactions</th>
+                                <th>Total Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category, summary in income_summary.items() %}
+                                <tr>
+                                    <td>{{ category }}</td>
+                                    <td>{{ summary.count }}</td>
+                                    <td>{{ summary.total_value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    <!-- Display transactions -->
+        <div class="transaction-section mt-4">
+            {% if start_date and end_date %}
+                <h2>Showing transactions between {{ start_date }} and {{ end_date }}</h2>
+            {% else %}
+                <h2>Recent Transactions</h2>
+            {% endif %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.timestamp }}</td>
+                                <td>{{ transaction.category_name.capitalize() }}</td>
+                                <td>{{ transaction.type.capitalize() }}</td>
+                                <td>{{ transaction.description }}</td>
+                                <td>{{ transaction.amount }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<!-- Predefined Date Range Selection -->
+    <script>
+        function setPredefinedDateRange(option) {
+            const endDate = new Date();
+            let startDate;
+
+            switch (option) {
+                case 'today':
+                    startDate = new Date(endDate);
+                // Set time to midnight for the start date
+                    startDate.setDate(endDate.getDate() - 0);
+                    break;
+                case 'last_7_days':
+                    startDate = new Date(endDate);
+                    startDate.setDate(endDate.getDate() - 7);
+                    break;
+                case 'last_30_days':
+                    startDate = new Date(endDate);
+                    startDate.setDate(endDate.getDate() - 30);
+                    break;
+                case 'last_3_months':
+                    startDate = new Date(endDate);
+                    startDate.setMonth(endDate.getMonth() - 3);
+                    break;
+                case 'last_6_months':
+                    startDate = new Date(endDate);
+                    startDate.setMonth(endDate.getMonth() - 6);
+                    break;
+                case 'last_year':
+                    startDate = new Date(endDate);
+                    startDate.setFullYear(endDate.getFullYear() - 1);
+                    break;
+                default:
+                    return;
+            }
+
+            document.getElementById('start_date').valueAsDate = startDate;
+            document.getElementById('end_date').valueAsDate = endDate;
+        }
+    </script>
+
+<!-- Script for rendering pie charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        // Extract expense data for the pie chart
+            var expenseData = {};
+            var totalExpenses = 0;
+
+        {% for transaction in transactions %}
+            {% if transaction.type == 'expense' %}
+                var categoryName = "{{ transaction.category_name.capitalize() }}";
+                var amount = {{ transaction.amount }};
+
+        // If category exists, add amount, else create a new category
+            if (expenseData[categoryName]) {
+                expenseData[categoryName] += amount;
+            } else {
+                expenseData[categoryName] = amount;
+            }
+
+            totalExpenses += amount;
+            {% endif %}
+        {% endfor %}
+
+        // Convert data to percentages
+            var expenseLabels = Object.keys(expenseData);
+            var expensePercentages = expenseLabels.map(function(label) {
+                return ((expenseData[label] / totalExpenses) * 100).toFixed(2);
+            });
+
+        // Additional colors for the pie chart
+            var additionalColors = [
+                'rgba(255, 0, 0, 0.7)',
+                'rgba(0, 255, 0, 0.7)',
+                'rgba(0, 0, 255, 0.7)',
+                'rgba(255, 255, 0, 0.7)',
+                'rgba(255, 0, 255, 0.7)',
+                'rgba(0, 255, 255, 0.7)',
+                'rgba(128, 0, 128, 0.7)',
+                'rgba(128, 128, 0, 0.7)',
+                'rgba(0, 128, 128, 0.7)'
+            ];
+
+        // Combine the default and additional colors
+            var backgroundColors = [
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(255, 159, 64, 0.7)',
+                'rgba(255, 205, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+                'rgba(201, 203, 207, 0.7)'
+            ].concat(additionalColors.slice(0, expenseLabels.length - 7));
+
+        // Render the expense pie chart
+            var ctxExpense = document.getElementById('expensePieChart').getContext('2d');
+            var expensePieChart = new Chart(ctxExpense, {
+                type: 'pie',
+                data: {
+                    labels: expenseLabels,
+                    datasets: [{
+                        data: expensePercentages,
+                        backgroundColor: backgroundColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        text: 'Expense Distribution by Category'
+                    }
+                }
+            });
+
+        // Extract income data for the pie chart
+            var incomeData = {};
+            var totalIncome = 0;
+
+            {% for transaction in transactions %}
+            {% if transaction.type == 'income' %}
+            var incomeCategoryName = "{{ transaction.category_name.capitalize() }}";
+            var incomeAmount = {{ transaction.amount }};
+
+        // If category exists, add amount, else create a new category
+            if (incomeData[incomeCategoryName]) {
+                incomeData[incomeCategoryName] += incomeAmount;
+            } else {
+                incomeData[incomeCategoryName] = incomeAmount;
+            }
+
+            totalIncome += incomeAmount;
+            {% endif %}
+        {% endfor %}
+
+        // Convert data to percentages
+            var incomeLabels = Object.keys(incomeData);
+            var incomePercentages = incomeLabels.map(function(label) {
+                return ((incomeData[label] / totalIncome) * 100).toFixed(2);
+            });
+
+        // Render the income pie chart
+            var ctxIncome = document.getElementById('incomePieChart').getContext('2d');
+            var incomePieChart = new Chart(ctxIncome, {
+                type: 'pie',
+                data: {
+                    labels: incomeLabels,
+                    datasets: [{
+                        data: incomePercentages,
+                        backgroundColor: backgroundColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        text: 'Income Distribution by Category'
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

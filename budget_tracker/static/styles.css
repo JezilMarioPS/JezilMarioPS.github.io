@@ -1,0 +1,126 @@
+.container {
+    width: 100%;
+    max-width: 1600px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+nav {
+    background-color: #007bff;
+    padding: 1em 0;
+}
+
+.navbar-brand {
+    color: #fff;
+    font-size: 2em;
+}
+
+.navbar-nav a:hover {
+    text-decoration: underline;
+}
+
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+    background-color: #fff;
+}
+
+.totals-section {
+    margin-top: 20px;
+}
+
+.chart-container {
+    margin-top: 20px;
+}
+
+.transaction-section {
+    margin-bottom: 20px;
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transaction-table th,
+.transaction-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.transaction-table th {
+    background-color: #333;
+    color: white;
+}
+
+.total-income,
+.total-expenses,
+.money-left-over {
+    margin-top: 20px;
+}
+
+
+
+.apology-title {
+    color: #dc3545;
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.apology-message {
+    display: block;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    line-height: 1.6;
+    text-align: center;
+    color: #6c757d;
+    max-width: 600px;
+    margin: 0 auto 10px;
+    z-index: 1;
+}
+
+.apology-code {
+    display: block;
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    text-align: center;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+.apology-image {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 0;
+}
+
+
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    text-align: center;
+    padding: 2px;
+    background-color: #e6e8eb;
+    color: grey;
+}

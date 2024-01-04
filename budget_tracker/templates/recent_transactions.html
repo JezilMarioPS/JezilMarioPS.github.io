@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Transaction History</h1>
+
+    <!-- Date Range Selection Form -->
+        <form method="post" class="mb-4">
+            <div class="form-row align-items-end">
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                <!-- Predefined Date Range Options -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Date Range
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('today')">Today</a>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_7_days')">Last 7 Days</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_30_days')">Last 30 Days</a>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_3_months')">Last 3 Months</a>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_6_months')">Last 6 Months</a>
+                            <a class="dropdown-item" href="#" onclick="setPredefinedDateRange('last_year')">Last Year</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <button type="submit" class="btn btn-primary btn-block">Apply</button>
+                </div>
+            </div>
+        </form>
+
+    <!-- Recent Transactions Section -->
+        <div class="recent-transactions-section mt-4">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.timestamp }}</td>
+                                <td>{{ transaction.category_name.capitalize() }}</td>
+                                <td>{{ transaction.description.capitalize() }}</td>
+                                <td>{{ transaction.type.capitalize() }}</td>
+                                <td>{{ transaction.amount }}</td>
+                                <td>
+                                    <form action="{{ url_for('delete_transaction', transaction_id=transaction.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    <!-- Script for Predefined Date Range Selection -->
+        <script>
+            function setPredefinedDateRange(option) {
+                const endDate = new Date();
+                let startDate;
+
+                switch (option) {
+                    case 'today':
+                        startDate = new Date(endDate);
+                    // Set time to midnight for the start date
+                        startDate.setDate(endDate.getDate() - 0);
+                        break;
+                    case 'last_7_days':
+                        startDate = new Date(endDate);
+                        startDate.setDate(endDate.getDate() - 7);
+                        break;
+                    case 'last_30_days':
+                        startDate = new Date(endDate);
+                        startDate.setDate(endDate.getDate() - 30);
+                        break;
+                    case 'last_3_months':
+                        startDate = new Date(endDate);
+                        startDate.setMonth(endDate.getMonth() - 3);
+                        break;
+                    case 'last_6_months':
+                        startDate = new Date(endDate);
+                        startDate.setMonth(endDate.getMonth() - 6);
+                        break;
+                    case 'last_year':
+                        startDate = new Date(endDate);
+                        startDate.setFullYear(endDate.getFullYear() - 1);
+                        break;
+                    default:
+                        return;
+                }
+
+                document.getElementById('start_date').valueAsDate = startDate;
+                document.getElementById('end_date').valueAsDate = endDate;
+            }
+        </script>
+    </div>
+{% endblock %}

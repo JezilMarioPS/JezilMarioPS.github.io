@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Categories{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Manage Categories</h1>
+
+        <table class="table table-bordered mt-3">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Category Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ url_for('add_category') }}" class="btn btn-primary mt-3">Add/Delete Category</a>
+    </div>
+{% endblock %}
